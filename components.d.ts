@@ -44,7 +44,7 @@ declare module 'vue' {
     MapOne: typeof import('./src/components/Maps/MapOne.vue')['default']
     MultiSelect: typeof import('./src/components/Forms/MultiSelect.vue')['default']
     ProfileCard: typeof import('./src/components/ProfileCard.vue')['default']
-    Project: typeof import('./src/components/Forms/Project.vue')['default']
+    Project: typeof import('./src/components/Project/Project.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SelectGroup: typeof import('./src/components/Forms/SelectGroup.vue')['default']
