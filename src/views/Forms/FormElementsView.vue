@@ -34,7 +34,7 @@ const pageTitle = ref('Form Elements')
         <DefaultCard cardTitle="Input Fields">
           <div class="flex flex-col gap-5.5 p-6.5">
             <div>
-              <label class="mb-3 block text-sm font-medium text-black dark:text-white">
+              <label class="mb-3 lbock text-sm font-medium text-black dark:text-white">
                 Default Input
               </label>
               <input

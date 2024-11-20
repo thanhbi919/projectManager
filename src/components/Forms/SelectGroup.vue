@@ -7,6 +7,10 @@ const isOptionSelected = ref<boolean>(false)
 const changeTextColor = () => {
   isOptionSelected.value = true
 }
+
+interface Props {
+  selectedOption
+}
 </script>
 
 <template>

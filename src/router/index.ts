@@ -12,8 +12,49 @@ import ProfileView from '@/views/ProfileView.vue'
 import TablesView from '@/views/TablesView.vue'
 import AlertsView from '@/views/UiElements/AlertsView.vue'
 import ButtonsView from '@/views/UiElements/ButtonsView.vue'
+import TaskDetail from '@/views/Tasks/TaskDetail.vue'
+import TaskList from '@/views/Tasks/TaskList.vue'
+import ProjectList from '@/views/Project/ProjectList.vue'
+import CreateProject from '@/views/Project/CreateProject.vue'
+import EditProject from '@/views/Project/EditProject.vue'
+import WorkLogsView from '@/views/WorkLogs/WorkLogsView.vue'
 
 const routes = [
+  {
+    path: '/projects',
+    component: ProjectList,
+    name: 'projectList',
+    meta: {
+      title: 'Project List',
+      auth: true
+    }
+  },
+  {
+    path: '/projects/create',
+    component: CreateProject,
+    name: 'createProject',
+    meta: {
+      title: 'Create Project'
+    }
+  },
+  {
+    path: '/projects/:id',
+    component: EditProject,
+    name: 'editProject',
+    props: true,
+    meta: {
+      title: 'Edit Project'
+    }
+  },
+  {
+    path: '/tasks',
+    component: TaskList,
+    name: 'taskList',
+    meta: {
+      title: 'eCommerce Dashboard'
+    }
+  },
+  { path: '/tasks/:id', component: TaskDetail, name: 'taskDetail' },
   {
     path: '/',
     name: 'eCommerce',
@@ -22,6 +63,15 @@ const routes = [
       title: 'eCommerce Dashboard'
     }
   },
+  {
+    path: '/work-logs',
+    name: 'workLogs',
+    component: WorkLogsView,
+    meta: {
+      title: 'Work Logs'
+    }
+  },
+
   {
     path: '/calendar',
     name: 'calendar',
@@ -122,7 +172,15 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   document.title = `Vue.js ${to.meta.title} | TailAdmin - Vue.js Tailwind CSS Dashboard Template`
-  next()
+  const isLoggedIn = localStorage.getItem('isLoggedIn')
+
+  if (to.matched.some((record) => record.meta.auth)) {
+    if (isLoggedIn !== 'true') {
+      next('/404')
+    } else next()
+  } else {
+    next()
+  }
 })
 
 export default router
