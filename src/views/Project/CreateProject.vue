@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Project from '@/components/Forms/Project.vue'
+import Project from '@/components/Project/Project.vue'
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 </script>
