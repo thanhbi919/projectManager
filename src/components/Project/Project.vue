@@ -116,7 +116,14 @@
 import DefaultCard from '@/components/Forms/DefaultCard.vue'
 import { onBeforeMount, ref } from 'vue'
 import { useAppStore } from '@/stores/app'
-import { authRequest, projectRequest, roleRequest, typeRequest, userRequest } from '@/request'
+import {
+  authRequest,
+  projectRequest,
+  projectStatusRequest,
+  roleRequest,
+  typeRequest,
+  userRequest
+} from '@/request'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
@@ -130,6 +137,8 @@ const memberData = ref([])
 const roleData = ref([])
 
 const typeData = ref([])
+
+const projectStatusData = ref([])
 
 const formData = ref({
   name: '123123',
@@ -169,6 +178,10 @@ const getDetailProject = async () => {
   formData.value = (await projectRequest.show(+route.params.id)).data.data
 }
 
+const getListProjectStatus = async () => {
+  projectStatusData.value = (await projectStatusRequest.list()).data
+}
+
 const submitForm = async () => {
   if (route.params.id) {
     formData.value.name = '123'
@@ -181,7 +194,7 @@ const submitForm = async () => {
 onBeforeMount(async () => {
   // await login()
   try {
-    await Promise.all([getListRole(), getListUser(), getListType()])
+    await Promise.all([getListRole(), getListUser(), getListType(), getListProjectStatus()])
 
     if (route.params.id) {
       //

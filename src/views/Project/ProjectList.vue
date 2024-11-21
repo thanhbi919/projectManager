@@ -5,21 +5,27 @@
     <!-- Breadcrumb End -->
 
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-black">
-      <div v-for="project in listProject" :key="project.id" class="bg-blue-200 p-4 min-w-80">
+      <div
+        v-for="project in listProject"
+        :key="project.id"
+        class="relative bg-blue-200 p-4 min-w-80 h-80"
+      >
         <div class="flex justify-between items-center border-b-2 border-blue-500 p-2">
-          <div class="text-xl font-extrabold">{{ project.title }}</div>
+          <div
+            @click="() => $router.push(`/projects/${project.id}`)"
+            class="text-xl font-extrabold text-nowrap text-ellipsis overflow-hidden hover:underline hover:opacity-80 cursor-pointer"
+          >
+            {{ project.title }}
+          </div>
           <div class="bg-green-200 px-2 py-1 text-green-800 text-sm rounded">status</div>
         </div>
         <div class="">
           <div class="px-2 py-8">
             {{ project.description }}
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Culpa deleniti deserunt
-            eligendi nostrum possimus quam quod? Accusantium libero, totam! Consequatur corporis
-            dolorem id maiores modi quasi recusandae repudiandae tempora vel!
           </div>
 
           <div class="mt-3 text-red-500 font-semibold">Deadline : 05 APRIL 2023</div>
-          <div class="mt-5 flex justify-between">
+          <div class="absolute bottom-4 left-4 mt-5 max-h-60 flex justify-between w-72">
             <div class="overflow-hidden text-nowrap text-ellipsis max-w-40">
               <span v-for="(member, index) in project.users" :key="member.id">
                 {{ member.name }}<span v-if="index < project.users.length - 1">, </span>
