@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col gap-9">
     <!-- Contact Form Start -->
-    <DefaultCard cardTitle="Project">
+    <DefaultCard cardTitle="Task">
       <el-form
         label-position="top"
         :model="formData"
@@ -10,17 +10,32 @@
         :rules="formRules"
         class="p-6.5"
       >
+        <!--          Project-->
+        <el-form-item label="Project" prop="project_id">
+          <el-select
+            clearable
+            filterable
+            v-model="formData.project_id"
+            placeholder="Select Project"
+            @change="handleChangeProject"
+          >
+            <el-option
+              v-for="project in listProject"
+              :key="project.id"
+              :value="project.id"
+              :label="project.name"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="Task Title" prop="title">
+          <el-input v-model="formData.title"></el-input>
+        </el-form-item>
         <el-row :gutter="20">
-          <!-- Project Title -->
-          <el-col :span="12">
-            <el-form-item label="Project Title" prop="title">
-              <el-input v-model="formData.title"></el-input>
-            </el-form-item>
-          </el-col>
+          <!-- Task Title -->
 
-          <!-- Project Type -->
-          <el-col :span="12">
-            <el-form-item label="Project Type" prop="type_id">
+          <!-- Task Type -->
+          <el-col :span="8">
+            <el-form-item label="Task Type" prop="type_id">
               <el-select v-model="formData.type_id" placeholder="Select Type">
                 <el-option
                   v-for="type in typeData"
@@ -31,11 +46,71 @@
               </el-select>
             </el-form-item>
           </el-col>
+
+          <!-- Task Priority -->
+          <el-col :span="8">
+            <el-form-item label="Priority">
+              <el-select v-model="formData.priority_id" placeholder="Select Status">
+                <el-option
+                  v-for="status in listTaskPriorityData"
+                  :key="status.id"
+                  :value="status.id"
+                  :label="status.name"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <!-- Task Status -->
+          <el-col :span="8">
+            <el-form-item label="Task Status" prop="status_id">
+              <el-select v-model="formData.status_id" placeholder="Select Status">
+                <el-option
+                  v-for="status in taskStatusData"
+                  :key="status.id"
+                  :value="status.id"
+                  :label="status.name"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
         </el-row>
 
+        <!-- Task Description -->
+        <el-form-item label="Task Description" prop="description">
+          <el-input
+            type="textarea"
+            v-model="formData.description"
+            rows="4"
+            placeholder="Task Description"
+          ></el-input>
+        </el-form-item>
+
+        <!-- Assign To -->
+
         <el-row :gutter="20">
+          <el-col :span="8">
+            <el-form-item label="Assign To">
+              <el-select
+                filterable
+                :disabled="!formData.project_id"
+                default-first-option
+                multiple
+                :multiple-limit="1"
+                v-model="formData.member_id"
+                placeholder=""
+              >
+                <el-option
+                  v-for="member in listProjectMember"
+                  :key="member.user_id"
+                  :value="member.user_id"
+                  :label="member.name"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+
           <!-- Start Date -->
-          <el-col :span="12">
+          <el-col :span="4">
             <el-form-item label="Start Date" prop="start_date">
               <el-date-picker
                 type="date"
@@ -48,8 +123,8 @@
             </el-form-item>
           </el-col>
 
-          <!-- End Date -->
-          <el-col :span="12">
+          <!-- Due Date -->
+          <el-col :span="4">
             <el-form-item label="End Date" prop="end_date">
               <el-date-picker
                 type="date"
@@ -62,68 +137,6 @@
             </el-form-item>
           </el-col>
         </el-row>
-
-        <!-- Project Status -->
-        <el-form-item label="Project Status" prop="status_id">
-          <el-select v-model="formData.status_id" placeholder="Select Status">
-            <el-option
-              v-for="status in projectStatusData"
-              :key="status.id"
-              :value="status.id"
-              :label="status.name"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-
-        <!-- Project Description -->
-        <el-form-item label="Project Description" prop="description">
-          <el-input
-            type="textarea"
-            v-model="formData.description"
-            rows="4"
-            placeholder="Project Description"
-          ></el-input>
-        </el-form-item>
-
-        <!-- Members -->
-        <el-form-item label="Project Members" prop="members">
-          <div
-            v-for="(member, index) in formData.members"
-            :key="index"
-            class="mb-4 flex gap-3.5 w-full"
-          >
-            <!-- User -->
-            <el-form-item class="flex-1" prop="members">
-              <el-select v-model="member.user_id" placeholder="Select Member" class="w-full">
-                <el-option
-                  v-for="user in memberData"
-                  :key="user.id"
-                  :value="user.id"
-                  :label="user.name"
-                  :disabled="formData.members.filter((item) => item.user_id === user.id).length"
-                ></el-option>
-              </el-select>
-            </el-form-item>
-
-            <!-- Role -->
-            <el-form-item class="flex-1" prop="role_id">
-              <el-select v-model="member.role_id" placeholder="Select Role">
-                <el-option
-                  v-for="role in roleData"
-                  :key="role.id"
-                  :value="role.id"
-                  :label="role.name"
-                ></el-option>
-              </el-select>
-            </el-form-item>
-
-            <!-- Delete Button -->
-            <el-button v-if="formData.members.length > 1" @click="deleteMember(index)" type="danger"
-              ><el-icon><Delete /></el-icon
-            ></el-button>
-          </div>
-          <el-button type="primary" plain @click.prevent="addMember">Add Member</el-button>
-        </el-form-item>
 
         <!-- Buttons -->
         <div class="flex justify-end gap-4">
@@ -156,6 +169,7 @@ import {
   projectRequest,
   projectStatusRequest,
   roleRequest,
+  taskRequest,
   typeRequest,
   userRequest
 } from '@/request'
@@ -175,43 +189,24 @@ const roleData = ref([])
 
 const typeData = ref([])
 
-const projectStatusData = ref([])
+const taskStatusData = ref([])
+const listTaskPriorityData = ref([])
+const listProjectMember = ref([])
 
-const formData = ref({
-  name: '123123',
-  title: '',
-  type_id: 1,
-  description: '',
-  members: [{}],
-  status_id: 1,
-  start_date: '',
-  end_date: ''
-})
+const formData = ref<{
+  name: string
+  title: string
+  description: string
+  assign_to: number
+  project_id: number
+  status_id: number
+  priority_id: number
+  type_id: number
+  start_date: string
+  due_date: string
+}>({})
 
-const formRules = reactive({
-  title: [
-    { required: true, message: 'Please input project title', trigger: 'blur' },
-    { max: 50, message: 'Project title cannot be longer than 50 characters', trigger: 'blur' }
-  ],
-  type_id: [{ required: true, message: 'Please select project type', trigger: 'change' }],
-  start_date: [
-    { required: true, message: 'Please select start date', trigger: 'change' },
-    { type: 'date', message: 'Please select a valid date', trigger: 'blur' }
-  ],
-  end_date: [
-    { required: true, message: 'Please select end date', trigger: 'change' },
-    { type: 'date', message: 'Please select a valid date', trigger: 'blur' }
-  ],
-  status_id: [{ required: true, message: 'Please select project status', trigger: 'change' }],
-  description: [
-    { required: true, message: 'Please input project description', trigger: 'blur' },
-    { max: 100, message: 'Description cannot be longer than 100 characters', trigger: 'blur' }
-  ],
-  members: [
-    { required: true, message: 'Please add project members', trigger: 'change' },
-    { type: 'array', message: 'At least one member is required', trigger: 'blur' }
-  ]
-})
+const formRules = reactive({})
 
 const addMember = () => {
   formData.value.members.push({})
@@ -227,8 +222,28 @@ const logout = () => {
   const b = authRequest.logout()
 }
 
+const getListProjectMember = async (project_id: number) => {
+  listProjectMember.value = (await projectRequest.getListProjectMembers(project_id)).data
+}
+
+const handleChangeProject = async (project_id) => {
+  //TODO get list member of project by id
+
+  await getListProjectMember(project_id)
+}
+
+const listProject = ref()
+
 const getListType = async () => {
-  typeData.value = (await typeRequest.list()).data
+  typeData.value = (await taskRequest.getListTaskType()).data
+}
+
+const getListTaskStatus = async () => {
+  taskStatusData.value = (await taskRequest.getListTaskStatus()).data
+}
+
+const getListTaskPriority = async () => {
+  listTaskPriorityData.value = (await taskRequest.getListTaskPriority()).data
 }
 
 const getListUser = async () => {
@@ -239,12 +254,12 @@ const getListRole = async () => {
   roleData.value = (await roleRequest.list()).data
 }
 
-const getDetailProject = async () => {
-  formData.value = (await projectRequest.show(+route.params.id)).data.data
-}
+// const getDetailTask = async () => {
+//   formData.value = (await projectRequest.show(+route.params.id)).data.data
+// }
 
-const getListProjectStatus = async () => {
-  projectStatusData.value = (await projectStatusRequest.list()).data
+const getListProject = async () => {
+  listProject.value = (await projectRequest.list()).data.data
 }
 
 const submitForm = async (formEl: FormInstance | undefined) => {
@@ -285,11 +300,18 @@ const submitForm = async (formEl: FormInstance | undefined) => {
 onBeforeMount(async () => {
   // await login()
   try {
-    await Promise.all([getListRole(), getListUser(), getListType(), getListProjectStatus()])
+    await Promise.all([
+      getListRole(),
+      getListUser(),
+      getListType(),
+      getListTaskStatus(),
+      getListProject(),
+      getListTaskPriority()
+    ])
 
     if (route.params.id) {
       //
-      await getDetailProject()
+      await getDetailTask()
     }
   } catch (e) {
     console.log(e)
