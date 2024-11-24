@@ -43,7 +43,18 @@
               {{ member.name }}<span v-if="index < project.users.length - 1">, </span>
             </span>
           </div>
-          <div class="text-gray-400 flex items-center gap-1. text-nowrap">
+          <div
+            @click="
+              () =>
+                $router.push({
+                  name: 'taskList',
+                  query: {
+                    project_id: project.id
+                  }
+                })
+            "
+            class="hover:underline cursor-pointer text-gray-400 flex items-center gap-1 text-nowrap"
+          >
             <svg
               width="21"
               height="21"
@@ -71,7 +82,7 @@
                 stroke-linejoin="round"
               />
             </svg>
-            14 issue
+            {{ project.tasks_count }} {{ project.tasks_count > 1 ? 'ISSUES' : 'ISSUE' }}
           </div>
         </div>
       </div>
@@ -85,8 +96,11 @@ import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import { projectRequest, projectStatusRequest } from '@/request'
 import { onMounted, ref } from 'vue'
 import project from '../../request/project/project'
+import task from '@/request/task'
+import DetailTask from '@/components/Task/DetailTask.vue'
 const listProject = ref([])
 const projectStatusData = ref([])
+const showDetail = ref(true)
 const getListProject = async () => {
   console.log('222')
   listProject.value = (await projectRequest.list()).data.data

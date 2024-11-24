@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onClickOutside } from '@vueuse/core'
 import { ref } from 'vue'
+import { authRequest } from '@/request'
 
 const target = ref(null)
 const dropdownOpen = ref(false)
@@ -123,6 +124,11 @@ onClickOutside(target, () => {
         </li>
       </ul>
       <button
+        @click="
+          () => {
+            authRequest.logout()
+          }
+        "
         class="flex items-center gap-3.5 py-4 px-6 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
       >
         <svg

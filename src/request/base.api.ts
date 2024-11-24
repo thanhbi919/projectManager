@@ -18,7 +18,6 @@ export class BaseApi {
     // Interceptors nếu cần
     this.client.interceptors.request.use(
       (config) => {
-        console.log('1111234')
         const isLoggedIn = localStorage.getItem('isLoggedIn') // Hoặc sessionStorage
 
         if (isLoggedIn === 'true') {

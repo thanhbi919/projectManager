@@ -2,7 +2,7 @@ import { BaseApi } from '@/request/base.api'
 
 class TaskRequest extends BaseApi {
   constructor() {
-    super('api/task')
+    super('api/tasks')
   }
 
   async getListTaskType() {
@@ -15,6 +15,10 @@ class TaskRequest extends BaseApi {
 
   async getListTaskStatus() {
     return await this.client.get('/statuses')
+  }
+
+  async logWork(payload) {
+    return await this.client.post('/log-work', payload)
   }
 }
 

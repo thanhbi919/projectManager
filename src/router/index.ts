@@ -19,6 +19,7 @@ import CreateProject from '@/views/Project/CreateProject.vue'
 import EditProject from '@/views/Project/EditProject.vue'
 import WorkLogsView from '@/views/WorkLogs/WorkLogsView.vue'
 import TaskCreate from '@/views/Tasks/TaskCreate.vue'
+import TaskEdit from '@/views/Tasks/TaskEdit.vue'
 
 const routes = [
   {
@@ -58,12 +59,13 @@ const routes = [
   {
     path: '/tasks/create',
     component: TaskCreate,
-    name: 'taskList',
+    name: 'taskCreate',
     meta: {
       title: 'eCommerce Dashboard'
     }
   },
   { path: '/tasks/:id', component: TaskDetail, name: 'taskDetail' },
+  { path: '/tasks/edit/:id', component: TaskEdit, name: 'TaskEdit' },
   {
     path: '/',
     name: 'eCommerce',

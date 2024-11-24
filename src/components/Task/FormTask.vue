@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col gap-9">
     <!-- Contact Form Start -->
-    <DefaultCard cardTitle="Task">
+    <DefaultCard :cardTitle="cardTitle">
       <el-form
         label-position="top"
         :model="formData"
@@ -94,9 +94,7 @@
                 filterable
                 :disabled="!formData.project_id"
                 default-first-option
-                multiple
-                :multiple-limit="1"
-                v-model="formData.member_id"
+                v-model="formData.assign_to"
                 placeholder=""
               >
                 <el-option
@@ -129,7 +127,7 @@
               <el-date-picker
                 type="date"
                 placeholder="Pick a date"
-                v-model="formData.end_date"
+                v-model="formData.due_date"
                 value-format="YYYY-MM-DD"
                 format="YYYY-MM-DD"
                 class="w-full"
@@ -177,6 +175,7 @@ import { useRoute } from 'vue-router'
 import { ElMessage, type FormInstance, vLoading } from 'element-plus'
 
 const route = useRoute()
+const cardTitle = ref()
 
 const formRef = ref<FormInstance>()
 const pageTitle = ref('Form Layout')
@@ -194,7 +193,6 @@ const listTaskPriorityData = ref([])
 const listProjectMember = ref([])
 
 const formData = ref<{
-  name: string
   title: string
   description: string
   assign_to: number
@@ -207,20 +205,6 @@ const formData = ref<{
 }>({})
 
 const formRules = reactive({})
-
-const addMember = () => {
-  formData.value.members.push({})
-}
-
-const deleteMember = (index: number) => {
-  formData.value.members.splice(index, 1)
-}
-
-const { login } = useAppStore()
-
-const logout = () => {
-  const b = authRequest.logout()
-}
 
 const getListProjectMember = async (project_id: number) => {
   listProjectMember.value = (await projectRequest.getListProjectMembers(project_id)).data
@@ -254,16 +238,17 @@ const getListRole = async () => {
   roleData.value = (await roleRequest.list()).data
 }
 
-// const getDetailTask = async () => {
-//   formData.value = (await projectRequest.show(+route.params.id)).data.data
-// }
-
 const getListProject = async () => {
   listProject.value = (await projectRequest.list()).data.data
 }
 
+const getDetailTask = async () => {
+  formData.value = (await taskRequest.show(route.params.id)).data
+}
+
 const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
+
   await formEl.validate(async (isValid, invalidFields) => {
     if (isValid) {
       console.log('Submit Form')
@@ -312,6 +297,9 @@ onBeforeMount(async () => {
     if (route.params.id) {
       //
       await getDetailTask()
+      cardTitle.value = formData.value.title
+    } else {
+      cardTitle.value = 'Task'
     }
   } catch (e) {
     console.log(e)

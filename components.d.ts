@@ -30,18 +30,24 @@ declare module 'vue' {
     DatePickerTwo: typeof import('./src/components/Forms/DatePicker/DatePickerTwo.vue')['default']
     DefaultAuthCard: typeof import('./src/components/Auths/DefaultAuthCard.vue')['default']
     DefaultCard: typeof import('./src/components/Forms/DefaultCard.vue')['default']
+    Detail: typeof import('./src/components/Task/Detail.vue')['default']
+    DetailTask: typeof import('./src/components/Task/DetailTask.vue')['default']
     DropdownMessage: typeof import('./src/components/Header/DropdownMessage.vue')['default']
     DropdownNotification: typeof import('./src/components/Header/DropdownNotification.vue')['default']
     DropdownUser: typeof import('./src/components/Header/DropdownUser.vue')['default']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElCol: typeof import('element-plus/es')['ElCol']
     ElDatePicker: typeof import('element-plus/es')['ElDatePicker']
+    ElDialog: typeof import('element-plus/es')['ElDialog']
     ElForm: typeof import('element-plus/es')['ElForm']
     ElFormItem: typeof import('element-plus/es')['ElFormItem']
     ElIcon: typeof import('element-plus/es')['ElIcon']
     ElInput: typeof import('element-plus/es')['ElInput']
+    ElInputt: typeof import('element-plus/es')['ElInputt']
     ElOption: typeof import('element-plus/es')['ElOption']
+    ElPagination: typeof import('element-plus/es')['ElPagination']
     ElRow: typeof import('element-plus/es')['ElRow']
+    ElScrollbar: typeof import('element-plus/es')['ElScrollbar']
     ElSelect: typeof import('element-plus/es')['ElSelect']
     ElTag: typeof import('element-plus/es')['ElTag']
     FormTask: typeof import('./src/components/Task/FormTask.vue')['default']
@@ -67,5 +73,8 @@ declare module 'vue' {
     TableOne: typeof import('./src/components/Tables/TableOne.vue')['default']
     TableThree: typeof import('./src/components/Tables/TableThree.vue')['default']
     TableTwo: typeof import('./src/components/Tables/TableTwo.vue')['default']
+  }
+  export interface ComponentCustomProperties {
+    vLoading: typeof import('element-plus/es')['ElLoadingDirective']
   }
 }
