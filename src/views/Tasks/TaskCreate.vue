@@ -7,7 +7,7 @@ import FormTask from '@/components/Task/FormTask.vue'
 <template>
   <DefaultLayout>
     <!-- Breadcrumb Start -->
-    <BreadcrumbDefault :pageTitle="pageTitle" />
+    <BreadcrumbDefault :pageTitle="'Task Create'" />
     <!-- Breadcrumb End -->
     <FormTask></FormTask>
   </DefaultLayout>

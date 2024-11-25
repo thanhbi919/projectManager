@@ -1,7 +1,7 @@
 <template>
   <DefaultLayout>
     <!-- Breadcrumb Start -->
-    <BreadcrumbDefault :pageTitle="pageTitle" />
+    <BreadcrumbDefault :pageTitle="'Tasks'" />
     <!-- Breadcrumb End -->
 
     <div class="flex flex-col gap-10" style="max-height: calc(100vh - 250px)">

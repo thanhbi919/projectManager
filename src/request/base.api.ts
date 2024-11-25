@@ -10,6 +10,7 @@ export class BaseApi {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json'
+
         // 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
       },
       withCredentials: true
@@ -39,9 +40,7 @@ export class BaseApi {
     this.client.interceptors.response.use(
       (response) => response,
       (error) => {
-        console.log('12312312312312312312', error.status)
         if (error.status === 401) {
-          console.log('1111')
           localStorage.setItem('isLoggedIn', false)
         }
         // Xử lý lỗi toàn cục nếu cần
@@ -58,12 +57,20 @@ export class BaseApi {
     return this.client.get('', { params })
   }
 
-  create(data) {
-    return this.client.post('', data)
+  create(data, isMultipart = false) {
+    const headers = isMultipart
+      ? { 'Content-Type': 'multipart/form-data' } // For file uploads
+      : { 'Content-Type': 'application/json' } // For JSON data
+    return this.client.post('', data, { headers })
   }
 
-  update(data, id: number) {
-    return this.client.put(`/${id}`, data)
+  update(data, id: number, isMultipart = false) {
+    const headers = isMultipart
+      ? { 'Content-Type': 'multipart/form-data' } // For file uploads
+      : { 'Content-Type': 'application/json' } // For JSON data
+    if (isMultipart) {
+      return this.client.post(`/${id}`, data, { headers })
+    } else return this.client.put(`/${id}`, data, { headers })
   }
 
   delete() {
