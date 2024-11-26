@@ -1,6 +1,6 @@
 <template>
   <div v-loading="loading" class="w-full h-full px-5">
-    <div class="flex mb-10 justify-between">
+    <div class="flex mb-10 justify-between items-center">
       <span class="font-semibold text-title-xl">{{ taskDetail?.title }}</span>
       <div>
         <el-button @click="() => (showLogTime = true)" round type="warning"> Log time </el-button>
@@ -86,15 +86,15 @@
 
   <el-dialog
     title="Add Spent Time"
-    width="400"
+    width="500"
     center
     :close-on-click-modal="false"
     v-model="showLogTime"
   >
     <div>
       <div>
-        <el-form>
-          <el-form-item title="Date">
+        <el-form label-width="100px">
+          <el-form-item label="Date">
             <el-date-picker
               format="YYYY-MM-DD"
               value-format="YYYY-MM-DD"
@@ -102,8 +102,27 @@
             >
             </el-date-picker>
           </el-form-item>
-          <el-form-item title="Spent Time">
-            <el-input v-model="formLogwork.logged_time"></el-input>
+          <el-form-item label="Spent Time">
+            <div class="input-spent flex gap-4">
+              <el-input-number
+                max="10"
+                :controls="false"
+                v-model="formLogwork.logged_time"
+              ></el-input-number
+              >Day
+              <el-input-number
+                max="24"
+                :controls="false"
+                v-model="formLogwork.logged_time"
+              ></el-input-number
+              >Hours
+              <el-input-number
+                max="60"
+                :controls="false"
+                v-model="formLogwork.logged_time"
+              ></el-input-number
+              >Minute
+            </div>
           </el-form-item>
         </el-form>
 
@@ -142,10 +161,13 @@ const formLogwork = reactive<{
   logged_time: number
 }>({})
 const appStore = useAppStore()
+const workLogDay = ref()
+const workLogHour = ref()
+const workLogMinutes = ref()
 
 const logWork = async () => {
   formLogwork.task_id = +props.taskDetail.id
-  formLogwork.user_id = appStore.userId
+  formLogwork.user_id = appStore.userData.id
   await taskRequest.logWork(formLogwork)
 }
 const loading = ref(false)
@@ -173,6 +195,55 @@ const stylePriority = {
   medium: 'bg-yellow-500', // Medium: Yellow background with white text
   high: 'bg-red-500' // High: Red background with white text
 }
+
+function formatTime(value) {
+  const minutes = parseInt(value, 10)
+
+  if (!minutes || isNaN(minutes)) {
+    return ''
+  }
+
+  const days = Math.floor(minutes / 1440) // 1 day = 1440 minutes
+  const remainingMinutesAfterDays = minutes % 1440
+
+  const hours = Math.floor(remainingMinutesAfterDays / 60) // 1 hour = 60 minutes
+  const remainingMinutes = remainingMinutesAfterDays % 60
+
+  let result = ''
+
+  if (days > 0) result += `${days} day${days > 1 ? 's' : ''} `
+  if (hours > 0) result += `${hours} hour${hours > 1 ? 's' : ''} `
+  if (remainingMinutes > 0) result += `${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}`
+
+  return result.trim()
+}
+
+// Chuyển đổi giá trị hiển thị ngược về phút
+function parseMinutes(value) {
+  const regex = /(\d+)\s*day[s]?\s*(\d+)?\s*hour[s]?\s*(\d+)?\s*minute[s]?/i
+  const match = value.match(regex)
+
+  if (match) {
+    const days = parseInt(match[1] || 0, 10)
+    const hours = parseInt(match[2] || 0, 10)
+    const minutes = parseInt(match[3] || 0, 10)
+
+    return days * 1440 + hours * 60 + minutes
+  }
+
+  // Nếu không match, trả lại số phút hoặc giá trị cũ
+  return parseInt(value, 10) || 0
+}
 </script>
 
-<style scoped></style>
+<style scoped>
+:deep(.el-input) {
+  width: 300px;
+}
+
+:deep(.input-spent) {
+  .el-input-number {
+    width: 50px;
+  }
+}
+</style>

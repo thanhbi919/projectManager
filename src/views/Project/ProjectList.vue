@@ -98,6 +98,7 @@ import { onMounted, ref } from 'vue'
 import project from '../../request/project/project'
 import task from '@/request/task'
 import DetailTask from '@/components/Task/DetailTask.vue'
+import { useWaitAppBooted } from '@/composable/useBooted'
 const listProject = ref([])
 const projectStatusData = ref([])
 const showDetail = ref(true)
@@ -115,7 +116,7 @@ const getListProjectStatus = async () => {
   projectStatusData.value = (await projectStatusRequest.list()).data
 }
 
-onMounted(async () => {
+useWaitAppBooted(async () => {
   await Promise.all([getListProject(), getListProjectStatus()])
 })
 </script>

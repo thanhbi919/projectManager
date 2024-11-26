@@ -16,6 +16,10 @@ class AuthRequest extends BaseApi {
   async register(userData) {
     return await this.client.post('/register', userData)
   }
+
+  async currentUser() {
+    return await this.client.get('/user')
+  }
 }
 const request = new AuthRequest()
 export default request

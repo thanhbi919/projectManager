@@ -2,64 +2,72 @@
   <div
     class="overflow-hidden rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark px-4 py-12"
   >
-    <el-form ref="userForm" :model="formData" :rules="rules" label-width="120px" class="user-form">
-      <el-avatar :src="formData.image"></el-avatar>
-      {{ formData.image }}
-      <!-- Name -->
-      <el-form-item label="Name" prop="name">
-        <el-input v-model="formData.name" placeholder="Enter name"></el-input>
-      </el-form-item>
+    <el-form
+      ref="userForm"
+      :model="formData"
+      :rules="rules"
+      label-width="120px"
+      class="user-form flex"
+    >
+      <div class="">
+        <el-image class="w-40 object-cover" :src="formData.image"></el-image>
+      </div>
+      <div class="flex-1">
+        <!-- Name -->
+        <el-form-item label="Name" prop="name">
+          <el-input v-model="formData.name" placeholder="Enter name"></el-input>
+        </el-form-item>
 
-      <!-- Email -->
-      <el-form-item label="Email" prop="email">
-        <el-input v-model="formData.email" placeholder="Enter email"></el-input>
-      </el-form-item>
+        <!-- Email -->
+        <el-form-item label="Email" prop="email">
+          <el-input v-model="formData.email" placeholder="Enter email"></el-input>
+        </el-form-item>
 
-      <!-- Password -->
-      <el-form-item label="Password" prop="password">
-        <el-input
-          v-model="formData.password"
-          type="password"
-          placeholder="Enter password"
-        ></el-input>
-      </el-form-item>
+        <!-- Password -->
+        <el-form-item label="Password" prop="password">
+          <el-input
+            v-model="formData.password"
+            type="password"
+            placeholder="Enter password"
+          ></el-input>
+        </el-form-item>
 
-      <!-- Department -->
-      <el-form-item label="Department" prop="department_id">
-        <el-select v-model="formData.department_id" placeholder="Select department">
-          <el-option
-            v-for="department in departments"
-            :key="department.id"
-            :label="department.name"
-            :value="department.id"
-          ></el-option>
-        </el-select>
-      </el-form-item>
+        <!-- Department -->
+        <el-form-item label="Department" prop="department_id">
+          <el-select v-model="formData.department_id" placeholder="Select department">
+            <el-option
+              v-for="department in departments"
+              :key="department.id"
+              :label="department.name"
+              :value="department.id"
+            ></el-option>
+          </el-select>
+        </el-form-item>
 
-      <!-- Image -->
-      <el-form-item label="Image" prop="image">
-        <input type="file" @change="handleImageChange" />
-        <el-button type="primary">Upload Image</el-button>
-      </el-form-item>
-
-      <!-- Phone Number -->
-      <el-form-item label="Phone Number" prop="phone_number">
-        <el-input v-model="formData.phone_number" placeholder="Enter phone number"></el-input>
-      </el-form-item>
-
-      <!-- Submit Button -->
-      <el-form-item class="flex w-full justify-end">
-        <el-button class="ml-auto" type="primary" @click="submitForm">Save</el-button>
-      </el-form-item>
+        <!-- Image -->
+        <el-form-item label="Image" prop="image">
+          <el-upload @change="handleImageChange">
+            <el-button type="primary">Upload Image</el-button>
+          </el-upload>
+        </el-form-item>
+        <!-- Phone Number -->
+        <el-form-item label="Phone Number" prop="phone_number">
+          <el-input v-model="formData.phone_number" placeholder="Enter phone number"></el-input>
+        </el-form-item>
+      </div>
     </el-form>
+    <div class="flex justify-end">
+      <el-button class="block mr-0" type="primary" @click="submitForm">Save</el-button>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { departmentRequest, userRequest } from '@/request'
 import { useAppStore } from '@/stores/app'
+import { useWaitAppBooted } from '@/composable/useBooted'
 
 // Reactive form data
 const formData = ref({
@@ -142,7 +150,7 @@ const submitForm = () => {
       payload.append('_method', 'PUT')
 
       try {
-        const response = await userRequest.update(payload, appStore.userId, true)
+        const response = await userRequest.update(payload, appStore.userData.id, true)
         ElMessage.success('User created successfully!')
       } catch (error) {
         console.log(error)
@@ -155,13 +163,23 @@ const submitForm = () => {
 }
 
 const getProfile = async () => {
-  formData.value = (await userRequest.show(appStore.userId)).data.data
+  formData.value = (await userRequest.show(appStore.userData.id)).data.data
   delete formData.value.department
 }
 
-// Fetch departments when the component is mounted
-onMounted(() => {
+useWaitAppBooted(() => {
   fetchDepartments()
   getProfile()
 })
+
+// Fetch departments when the component is mounted
+onMounted(() => {})
 </script>
+
+<style lang="scss" scoped>
+:deep(img) {
+  width: 200px;
+  height: 200px;
+  object-fit: cover !important;
+}
+</style>
