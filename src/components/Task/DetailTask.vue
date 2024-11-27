@@ -9,7 +9,7 @@
 
     <!-- Priority -->
     <div class="flex items-center p-3">
-      <div class="w-50 space-x-2 flex items-center">
+      <div class="w-50 space-x-2 flex items-center font-bold text-lg">
         <el-icon>
           <Star />
         </el-icon>
@@ -23,7 +23,7 @@
     </div>
     <!-- Status -->
     <div class="flex items-center p-3">
-      <div class="w-50 space-x-2 flex items-center">
+      <div class="w-50 space-x-2 flex items-center font-bold text-lg">
         <el-icon>
           <Check></Check>
         </el-icon>
@@ -35,10 +35,23 @@
         >{{ taskDetail?.status?.name }}</span
       >
     </div>
+    <!-- Description Section -->
+    <div class="flex items-center p-3">
+      <div class="w-50 space-x-2 flex items-center font-bold text-lg">
+        <el-icon>
+          <!-- Dùng Document icon cho Description -->
+          <Document />
+        </el-icon>
+        <span class="mr-4">Description</span>
+      </div>
+
+      <!-- Hiển thị nội dung mô tả (taskDetail.description) -->
+      <span class="p-1 w-100">{{ taskDetail?.description }}</span>
+    </div>
 
     <!-- Assigned To -->
     <div class="flex items-center p-3">
-      <div class="w-50 space-x-2 flex items-center">
+      <div class="w-50 space-x-2 flex items-center font-bold text-lg">
         <el-icon>
           <User />
         </el-icon>
@@ -50,7 +63,7 @@
 
     <!-- Due Date -->
     <div class="flex items-center p-3">
-      <div class="w-50 space-x-2 flex items-center">
+      <div class="w-50 space-x-2 flex items-center font-bold text-lg">
         <el-icon>
           <Calendar />
         </el-icon>
@@ -61,7 +74,7 @@
 
     <!-- Spent Time -->
     <div class="flex items-center p-3">
-      <div class="w-50 space-x-2 flex items-center">
+      <div class="w-50 space-x-2 flex items-center font-bold text-lg">
         <el-icon>
           <Timer />
         </el-icon>
@@ -73,7 +86,7 @@
 
     <!-- Remaining Time -->
     <div class="flex items-center p-3">
-      <div class="w-50 space-x-2 flex items-center">
+      <div class="w-50 space-x-2 flex items-center font-bold text-lg">
         <el-icon>
           <Clock />
         </el-icon>
@@ -81,6 +94,34 @@
       </div>
 
       <span>{{ formatMinutesToTime(taskDetail?.remaining_time) }}</span>
+    </div>
+    <!-- Work log history -->
+    <div class="p-3">
+      <div class="w-50 space-x-2 flex items-center font-bold text-lg">
+        <el-icon><AlarmClock /></el-icon>
+        <span class="mr-4">Work log history</span>
+      </div>
+      <div>
+        <el-table :data="taskDetail.logs" style="width: 100%">
+          <el-table-column label="User" prop="user.name">
+            <template v-slot="scope">
+              <span>{{ scope.row.user?.name }}</span>
+            </template>
+          </el-table-column>
+
+          <el-table-column label="Time Spent" prop="logged_time">
+            <template v-slot="scope">
+              <span>{{ formatMinutesToTime(scope.row.logged_time) }}</span>
+            </template>
+          </el-table-column>
+
+          <el-table-column label="Log Date" prop="log_date">
+            <template v-slot="scope">
+              <span>{{ scope.row.log_date }}</span>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
     </div>
   </div>
 
@@ -93,8 +134,8 @@
   >
     <div>
       <div>
-        <el-form label-width="100px">
-          <el-form-item label="Date">
+        <el-form ref="formRef" :model="formLogwork" :rules="rules" label-width="100px">
+          <el-form-item label="Date" prop="log_date">
             <el-date-picker
               format="YYYY-MM-DD"
               value-format="YYYY-MM-DD"
@@ -102,32 +143,17 @@
             >
             </el-date-picker>
           </el-form-item>
-          <el-form-item label="Spent Time">
+          <el-form-item :error="errorMessage" label="Spent Time">
             <div class="input-spent flex gap-4">
-              <el-input-number
-                max="10"
-                :controls="false"
-                v-model="formLogwork.logged_time"
-              ></el-input-number
-              >Day
-              <el-input-number
-                max="24"
-                :controls="false"
-                v-model="formLogwork.logged_time"
-              ></el-input-number
-              >Hours
-              <el-input-number
-                max="60"
-                :controls="false"
-                v-model="formLogwork.logged_time"
-              ></el-input-number
-              >Minute
+              <el-input @change="handleChange" v-model="loggedTime"></el-input>
             </div>
+            <span class="ml-3">Ex: 1w 1h 1m</span>
           </el-form-item>
         </el-form>
-
-        <el-button @click="logWork"> Save</el-button>
-        <el-button @click="() => (showLogTime = false)"> Cancel</el-button>
+        <div class="flex justify-end">
+          <el-button type="success" @click="logWork"> Save</el-button>
+          <el-button type="danger" @click="() => (showLogTime = false)"> Cancel</el-button>
+        </div>
       </div>
     </div>
   </el-dialog>
@@ -135,9 +161,7 @@
 <script setup lang="ts">
 import { onBeforeMount, reactive, ref } from 'vue'
 import { taskRequest } from '@/request'
-import { useRoute } from 'vue-router'
-import router from '@/router'
-import { formatMinutesToTime } from '@/utils/time'
+import { calculateMinutes, formatMinutesToTime } from '@/utils/time'
 import {
   CircleCheck,
   Refresh,
@@ -148,11 +172,17 @@ import {
   Check
 } from '@element-plus/icons-vue'
 import { useAppStore } from '@/stores/app'
+import { ElMessage } from 'element-plus'
 
+const formRef = ref()
 const showLogTime = ref(false)
 const props = defineProps<{
   taskDetail: {}
 }>()
+
+const rules = {
+  log_date: [{ required: true, message: 'Date is required', trigger: 'change' }]
+}
 
 const formLogwork = reactive<{
   task_id: number
@@ -161,14 +191,45 @@ const formLogwork = reactive<{
   logged_time: number
 }>({})
 const appStore = useAppStore()
-const workLogDay = ref()
-const workLogHour = ref()
-const workLogMinutes = ref()
+const loggedTime = ref()
+const errorMessage = ref()
+const handleChange = (e) => {
+  if (!e) {
+    errorMessage.value = 'Time spent is required'
+    return
+  }
+
+  try {
+    formLogwork.logged_time = calculateMinutes(e)
+    errorMessage.value = ''
+  } catch (e) {
+    errorMessage.value = e
+  }
+}
 
 const logWork = async () => {
-  formLogwork.task_id = +props.taskDetail.id
-  formLogwork.user_id = appStore.userData.id
-  await taskRequest.logWork(formLogwork)
+  handleChange(loggedTime.value)
+
+  formRef.value.validate(async (valid) => {
+    console.log(valid)
+    if (valid) {
+      formLogwork.task_id = +props.taskDetail.id
+      formLogwork.user_id = appStore.userData.id
+      try {
+        await taskRequest.logWork(formLogwork)
+        ElMessage({
+          type: 'success',
+          message: 'Logwork success'
+        })
+        showLogTime.value = false
+      } catch (e) {
+        ElMessage({
+          type: 'error',
+          message: e
+        })
+      }
+    }
+  })
 }
 const loading = ref(false)
 onBeforeMount(async () => {
@@ -180,6 +241,7 @@ onBeforeMount(async () => {
     // router.back()
   }
 })
+
 const styleStatus = {
   open: { class: 'bg-gray-500', icon: Refresh }, // Open: Gray background with a refresh icon
   inprogress: { class: 'bg-blue-500', icon: ChatLineRound }, // In Progress: Blue background with a chat icon
@@ -195,50 +257,11 @@ const stylePriority = {
   medium: 'bg-yellow-500', // Medium: Yellow background with white text
   high: 'bg-red-500' // High: Red background with white text
 }
-
-function formatTime(value) {
-  const minutes = parseInt(value, 10)
-
-  if (!minutes || isNaN(minutes)) {
-    return ''
-  }
-
-  const days = Math.floor(minutes / 1440) // 1 day = 1440 minutes
-  const remainingMinutesAfterDays = minutes % 1440
-
-  const hours = Math.floor(remainingMinutesAfterDays / 60) // 1 hour = 60 minutes
-  const remainingMinutes = remainingMinutesAfterDays % 60
-
-  let result = ''
-
-  if (days > 0) result += `${days} day${days > 1 ? 's' : ''} `
-  if (hours > 0) result += `${hours} hour${hours > 1 ? 's' : ''} `
-  if (remainingMinutes > 0) result += `${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}`
-
-  return result.trim()
-}
-
-// Chuyển đổi giá trị hiển thị ngược về phút
-function parseMinutes(value) {
-  const regex = /(\d+)\s*day[s]?\s*(\d+)?\s*hour[s]?\s*(\d+)?\s*minute[s]?/i
-  const match = value.match(regex)
-
-  if (match) {
-    const days = parseInt(match[1] || 0, 10)
-    const hours = parseInt(match[2] || 0, 10)
-    const minutes = parseInt(match[3] || 0, 10)
-
-    return days * 1440 + hours * 60 + minutes
-  }
-
-  // Nếu không match, trả lại số phút hoặc giá trị cũ
-  return parseInt(value, 10) || 0
-}
 </script>
 
 <style scoped>
 :deep(.el-input) {
-  width: 300px;
+  width: 250px;
 }
 
 :deep(.input-spent) {

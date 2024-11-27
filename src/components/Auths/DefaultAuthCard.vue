@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import { useAppStore } from '@/stores/app'
+
 const props = defineProps(['subtitle', 'title', 'customClasses'])
+
+const appStore = useAppStore()
 </script>
 
 <template>

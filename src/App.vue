@@ -12,7 +12,7 @@ onMounted(async () => {
     appStore.userData = res
     localStorage.setItem('isLoggedIn', true)
   } catch (e) {
-    await appStore.login()
+    // await appStore.login()
   } finally {
     appStore.booted = true
   }

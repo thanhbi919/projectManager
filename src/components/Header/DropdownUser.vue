@@ -2,9 +2,11 @@
 import { onClickOutside } from '@vueuse/core'
 import { ref } from 'vue'
 import { authRequest } from '@/request'
+import { useAppStore } from '@/stores/app'
 
 const target = ref(null)
 const dropdownOpen = ref(false)
+const appStore = useAppStore()
 
 onClickOutside(target, () => {
   dropdownOpen.value = false
@@ -124,11 +126,7 @@ onClickOutside(target, () => {
         </li>
       </ul>
       <button
-        @click="
-          () => {
-            authRequest.logout()
-          }
-        "
+        @click="appStore.logout()"
         class="flex items-center gap-3.5 py-4 px-6 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
       >
         <svg

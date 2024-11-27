@@ -2,6 +2,8 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useLocalStorage, useStorage } from '@vueuse/core'
 import authRequest from '@/request/auth'
+import router from '@/router'
+import { ElMessage } from 'element-plus'
 export const useAppStore = defineStore({
   id: 'app-store',
   state: () => {
@@ -12,26 +14,30 @@ export const useAppStore = defineStore({
     }
   },
   actions: {
-    async login() {
+    async login(payload: { email: string; password: string }) {
       try {
-        const user = (
-          await authRequest.login({ email: 'ngocanh_dev@gmail.com', password: 'ngocanh' })
-        ).data
-
-        if (user) {
-          userData.value = user
-        }
-
-        isLoggedIn.value = true
+        const user = (await authRequest.login(payload)).data
+        console.log(user.data)
+        if (user) this.userData = user.data
+        this.isLoggedIn = true
         localStorage.setItem('isLoggedIn', true)
+        router.push('/')
       } catch (e) {
-        userData.value = undefined
-        isLoggedIn.value = false
-        localStorage.setItem('isLoggedIn', false)
-
-        console.error(e)
+        ElMessage({
+          type: 'error',
+          message: 'Login Failed'
+        })
       }
       return
+    },
+    async logout() {
+      try {
+        await authRequest.logout()
+        localStorage.setItem('isLoggedIn', false)
+        router.push('/')
+      } catch (e) {
+        console.error(e)
+      }
     }
   }
 })

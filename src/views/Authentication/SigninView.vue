@@ -11,10 +11,6 @@ const pageTitle = ref('Sign In')
 
 <template>
   <DefaultLayout>
-    <!-- Breadcrumb Start -->
-    <BreadcrumbDefault :pageTitle="pageTitle" />
-    <!-- Breadcrumb End -->
-
     <DefaultAuthCard subtitle="Start for free" title="Sign In to TailAdmin">
       <form>
         <InputGroup label="Email" type="email" placeholder="Enter your email">

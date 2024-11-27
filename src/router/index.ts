@@ -20,8 +20,14 @@ import EditProject from '@/views/Project/EditProject.vue'
 import WorkLogsView from '@/views/WorkLogs/WorkLogsView.vue'
 import TaskCreate from '@/views/Tasks/TaskCreate.vue'
 import TaskEdit from '@/views/Tasks/TaskEdit.vue'
+import Login from '@/views/Login.vue'
 
 const routes = [
+  {
+    path: '/login',
+    component: Login,
+    name: 'login'
+  },
   {
     path: '/projects',
     component: ProjectList,
@@ -36,7 +42,8 @@ const routes = [
     component: CreateProject,
     name: 'createProject',
     meta: {
-      title: 'Create Project'
+      title: 'Create Project',
+      auth: true
     }
   },
   {
@@ -45,7 +52,8 @@ const routes = [
     name: 'editProject',
     props: true,
     meta: {
-      title: 'Edit Project'
+      title: 'Edit Project',
+      auth: true
     }
   },
   {
@@ -53,7 +61,8 @@ const routes = [
     component: TaskList,
     name: 'taskList',
     meta: {
-      title: 'eCommerce Dashboard'
+      title: 'Task List',
+      auth: true
     }
   },
   {
@@ -61,7 +70,8 @@ const routes = [
     component: TaskCreate,
     name: 'taskCreate',
     meta: {
-      title: 'eCommerce Dashboard'
+      title: 'eCommerce Dashboard',
+      auth: true
     }
   },
   { path: '/tasks/:id', component: TaskDetail, name: 'taskDetail' },
@@ -71,7 +81,8 @@ const routes = [
     name: 'eCommerce',
     component: ECommerceView,
     meta: {
-      title: 'eCommerce Dashboard'
+      title: 'eCommerce Dashboard',
+      auth: true
     }
   },
   {
@@ -186,8 +197,9 @@ router.beforeEach((to, from, next) => {
   const isLoggedIn = localStorage.getItem('isLoggedIn')
 
   if (to.matched.some((record) => record.meta.auth)) {
+    console.log(isLoggedIn)
     if (isLoggedIn !== 'true') {
-      next('/404')
+      next('/login')
     } else next()
   } else {
     next()

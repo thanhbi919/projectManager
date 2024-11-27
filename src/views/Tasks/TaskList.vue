@@ -3,7 +3,11 @@
     <!-- Breadcrumb Start -->
     <BreadcrumbDefault :pageTitle="'Tasks'" />
     <!-- Breadcrumb End -->
-
+    <div>
+      <el-button @click="router.push('tasks/create')" class="mb-5" type="primary"
+        >Create Task</el-button
+      >
+    </div>
     <div class="flex flex-col gap-10" style="max-height: calc(100vh - 250px)">
       <div
         class="flex flex-col gap-3.5 p-3 h-30 rounded-xl w-full shadow-4 dark:shadow-gray border border-blue-500 dark:border-blue-50"
@@ -34,9 +38,9 @@
           </el-col>
           <el-col class="" :span="8">
             <div class="flex items-center gap-2 justify-end">
-              <div v-if="task.remaining_time" class="bg-green-200 text-green-700 p-2 rounded-2xl">
+              <div class="flex items-center gap-2 bg-green-200 text-green-700 p-2 rounded-2xl">
                 <el-icon><Clock /></el-icon>
-                {{ task.remaining_time ? formatMinutesToTime(task.remaining_time) : '' }}
+                {{ task.remaining_time ? formatMinutesToTime(task.remaining_time) : '0m' }}
               </div>
 
               <div class="w-20 text-nowrap overflow-hidden text-ellipsis text-right">
@@ -50,7 +54,7 @@
       <el-dialog center :close-on-click-modal="false" v-model="showDetail" width="800">
         <DetailTask v-if="showDetail" :task-detail="taskSelected"></DetailTask>
       </el-dialog>
-      <el-pagination layout="prev, pager, next" :total="1000" />
+      <!--      <el-pagination layout="prev, pager, next" :total="1000" />-->
     </div>
   </DefaultLayout>
 </template>
@@ -68,6 +72,7 @@ import task from '../../request/task'
 import { formatMinutesToTime } from '@/utils/time'
 import DetailTask from '@/components/Task/DetailTask.vue'
 import project from '@/request/project/project'
+import router from '@/router'
 
 const taskSelected = ref()
 const showDetail = ref(false)

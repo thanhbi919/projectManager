@@ -4,6 +4,11 @@
     <BreadcrumbDefault :pageTitle="'Projects'" />
     <!-- Breadcrumb End -->
 
+    <div>
+      <el-button @click="router.push('projects/create')" class="mb-5" type="primary"
+        >Create Project</el-button
+      >
+    </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 text-black">
       <div
         v-for="project in listProject"
@@ -95,10 +100,8 @@ import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import { projectRequest, projectStatusRequest } from '@/request'
 import { onMounted, ref } from 'vue'
-import project from '../../request/project/project'
-import task from '@/request/task'
-import DetailTask from '@/components/Task/DetailTask.vue'
 import { useWaitAppBooted } from '@/composable/useBooted'
+import router from '@/router'
 const listProject = ref([])
 const projectStatusData = ref([])
 const showDetail = ref(true)

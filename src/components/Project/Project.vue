@@ -161,6 +161,7 @@ import {
 } from '@/request'
 import { useRoute } from 'vue-router'
 import { ElMessage, type FormInstance, vLoading } from 'element-plus'
+import router from '@/router'
 
 const route = useRoute()
 
@@ -266,6 +267,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
             type: 'success',
             message: 'Create project success'
           })
+          router.push('/projects')
         }
 
         formEl.resetFields()
