@@ -23,18 +23,13 @@
           <el-input v-model="formData.email" placeholder="Enter email"></el-input>
         </el-form-item>
 
-        <!-- Password -->
-        <el-form-item label="Password" prop="password">
-          <el-input
-            v-model="formData.password"
-            type="password"
-            placeholder="Enter password"
-          ></el-input>
-        </el-form-item>
-
         <!-- Department -->
         <el-form-item label="Department" prop="department_id">
-          <el-select v-model="formData.department_id" placeholder="Select department">
+          <el-select
+            :disabled="!appStore.isAdmin()"
+            v-model="formData.department_id"
+            placeholder="Select department"
+          >
             <el-option
               v-for="department in departments"
               :key="department.id"
@@ -46,7 +41,7 @@
 
         <!-- Image -->
         <el-form-item label="Image" prop="image">
-          <el-upload @change="handleImageChange">
+          <el-upload :auto-upload="false" @change="handleImageChange">
             <el-button type="primary">Upload Image</el-button>
           </el-upload>
         </el-form-item>
@@ -65,7 +60,7 @@
 <script lang="ts" setup>
 import { ref, reactive, onMounted, watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import { departmentRequest, userRequest } from '@/request'
+import { departmentRequest, imageRequest, userRequest } from '@/request'
 import { useAppStore } from '@/stores/app'
 import { useWaitAppBooted } from '@/composable/useBooted'
 
@@ -73,7 +68,6 @@ import { useWaitAppBooted } from '@/composable/useBooted'
 const formData = ref({
   name: undefined,
   email: undefined,
-  password: undefined,
   department_id: undefined,
   image: undefined,
   phone_number: undefined
@@ -91,7 +85,6 @@ const rules = {
     { required: true, message: 'Email is required', trigger: 'blur' },
     { type: 'email', message: 'Invalid email format', trigger: 'blur' }
   ],
-  password: [{ min: 6, message: 'Password must be at least 6 characters', trigger: 'blur' }],
   department_id: [{ required: true, message: 'Please select a department', trigger: 'change' }],
   phone_number: [{ pattern: /^[0-9]+$/, message: 'Invalid phone number', trigger: 'blur' }]
 }
@@ -107,9 +100,12 @@ const fetchDepartments = async () => {
 }
 
 // Handle image upload
-const handleImageChange = (file) => {
-  console.log(file.target.files[0])
-  fileInput.value = file.target.files[0] || null // Save raw file for manual submission
+const handleImageChange = async (file) => {
+  const formImage = new FormData()
+  formImage.append('image', file.raw)
+
+  formData.value.image = (await imageRequest.create(formImage, true))?.data?.url
+  // fileInput.value = file.raw || null // Save raw file for manual submission
 }
 
 const beforeUpload = (file) => {
@@ -134,23 +130,8 @@ const userForm = ref(null)
 const submitForm = () => {
   userForm.value.validate(async (valid) => {
     if (valid) {
-      const payload = new FormData()
-      for (const key in formData.value) {
-        if (formData.value[key]) {
-          if (key === 'image') {
-            payload.append('image', fileInput.value)
-          } else {
-            payload.append(key, formData.value[key])
-          }
-        }
-      }
-      for (let [key, value] of payload.entries()) {
-        console.log(`${key}: ${value}`)
-      }
-      payload.append('_method', 'PUT')
-
       try {
-        const response = await userRequest.update(payload, appStore.userData.id, true)
+        const response = await userRequest.update(formData.value, appStore.userData.id)
         ElMessage.success('User created successfully!')
       } catch (error) {
         console.log(error)
@@ -176,7 +157,7 @@ useWaitAppBooted(() => {
 onMounted(() => {})
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
 :deep(img) {
   width: 200px;
   height: 200px;

@@ -20,6 +20,10 @@ class TaskRequest extends BaseApi {
   async logWork(payload) {
     return await this.client.post('/log-work', payload)
   }
+
+  async updateStatus(id, payload) {
+    return await this.client.put(`/${id}/status`, payload)
+  }
 }
 
 const request = new TaskRequest()

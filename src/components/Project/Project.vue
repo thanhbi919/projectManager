@@ -14,14 +14,18 @@
           <!-- Project Title -->
           <el-col :span="12">
             <el-form-item label="Project Title" prop="title">
-              <el-input v-model="formData.title"></el-input>
+              <el-input :disabled="!appStore.isPm()" v-model="formData.title"></el-input>
             </el-form-item>
           </el-col>
 
           <!-- Project Type -->
           <el-col :span="12">
             <el-form-item label="Project Type" prop="type_id">
-              <el-select v-model="formData.type_id" placeholder="Select Type">
+              <el-select
+                :disabled="!appStore.isPm()"
+                v-model="formData.type_id"
+                placeholder="Select Type"
+              >
                 <el-option
                   v-for="type in typeData"
                   :key="type.id"
@@ -38,6 +42,7 @@
           <el-col :span="12">
             <el-form-item label="Start Date" prop="start_date">
               <el-date-picker
+                :disabled="!appStore.isPm()"
                 type="date"
                 placeholder="Pick a date"
                 v-model="formData.start_date"
@@ -52,6 +57,7 @@
           <el-col :span="12">
             <el-form-item label="End Date" prop="end_date">
               <el-date-picker
+                :disabled="!appStore.isPm()"
                 type="date"
                 placeholder="Pick a date"
                 v-model="formData.end_date"
@@ -65,7 +71,11 @@
 
         <!-- Project Status -->
         <el-form-item label="Project Status" prop="status_id">
-          <el-select v-model="formData.status_id" placeholder="Select Status">
+          <el-select
+            :disabled="!appStore.isPm()"
+            v-model="formData.status_id"
+            placeholder="Select Status"
+          >
             <el-option
               v-for="status in projectStatusData"
               :key="status.id"
@@ -78,6 +88,7 @@
         <!-- Project Description -->
         <el-form-item label="Project Description" prop="description">
           <el-input
+            :disabled="!appStore.isPm()"
             type="textarea"
             v-model="formData.description"
             rows="4"
@@ -94,7 +105,12 @@
           >
             <!-- User -->
             <el-form-item class="flex-1" prop="members">
-              <el-select v-model="member.user_id" placeholder="Select Member" class="w-full">
+              <el-select
+                :disabled="!appStore.isPm()"
+                v-model="member.user_id"
+                placeholder="Select Member"
+                class="w-full"
+              >
                 <el-option
                   v-for="user in memberData"
                   :key="user.id"
@@ -107,7 +123,11 @@
 
             <!-- Role -->
             <el-form-item class="flex-1" prop="role_id">
-              <el-select v-model="member.role_id" placeholder="Select Role">
+              <el-select
+                :disabled="!appStore.isPm()"
+                v-model="member.role_id"
+                placeholder="Select Role"
+              >
                 <el-option
                   v-for="role in roleData"
                   :key="role.id"
@@ -118,16 +138,21 @@
             </el-form-item>
 
             <!-- Delete Button -->
-            <el-button v-if="formData.members.length > 1" @click="deleteMember(index)" type="danger"
+            <el-button
+              v-if="formData.members.length > 1 && appStore.isPm()"
+              @click="deleteMember(index)"
+              type="danger"
               ><el-icon><Delete /></el-icon
             ></el-button>
           </div>
-          <el-button type="primary" plain @click.prevent="addMember">Add Member</el-button>
+          <el-button v-if="appStore.isPm()" type="primary" plain @click.prevent="addMember"
+            >Add Member</el-button
+          >
         </el-form-item>
 
         <!-- Buttons -->
         <div class="flex justify-end gap-4">
-          <el-button plain type="success" @click="submitForm(formRef)">
+          <el-button v-if="appStore.isPm()" plain type="success" @click="submitForm(formRef)">
             {{ route.params.id ? 'Update' : 'Create' }}
           </el-button>
         </div>
@@ -137,7 +162,7 @@
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 :deep(.el-input.el-date-editor) {
   width: 100%;
 }
@@ -164,6 +189,7 @@ import { ElMessage, type FormInstance, vLoading } from 'element-plus'
 import router from '@/router'
 
 const route = useRoute()
+const appStore = useAppStore()
 
 const formRef = ref<FormInstance>()
 const pageTitle = ref('Form Layout')
@@ -204,10 +230,7 @@ const formRules = reactive({
     { type: 'date', message: 'Please select a valid date', trigger: 'blur' }
   ],
   status_id: [{ required: true, message: 'Please select project status', trigger: 'change' }],
-  description: [
-    { required: true, message: 'Please input project description', trigger: 'blur' },
-    { max: 100, message: 'Description cannot be longer than 100 characters', trigger: 'blur' }
-  ],
+  description: [{ required: true, message: 'Please input project description', trigger: 'blur' }],
   members: [
     { required: true, message: 'Please add project members', trigger: 'change' },
     { type: 'array', message: 'At least one member is required', trigger: 'blur' }
@@ -226,6 +249,7 @@ const { login } = useAppStore()
 
 const logout = () => {
   const b = authRequest.logout()
+  appStore.$reset()
 }
 
 const getListType = async () => {
@@ -267,10 +291,9 @@ const submitForm = async (formEl: FormInstance | undefined) => {
             type: 'success',
             message: 'Create project success'
           })
+          formEl.resetFields()
           router.push('/projects')
         }
-
-        formEl.resetFields()
       } catch (e) {
         console.error(error)
         ElMessage({

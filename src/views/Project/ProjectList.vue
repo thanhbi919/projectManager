@@ -4,7 +4,7 @@
     <BreadcrumbDefault :pageTitle="'Projects'" />
     <!-- Breadcrumb End -->
 
-    <div>
+    <div v-if="appStore.isAdmin()">
       <el-button @click="router.push('projects/create')" class="mb-5" type="primary"
         >Create Project</el-button
       >
@@ -19,7 +19,11 @@
           class="row-span-1 col-span-1 flex gap-1 justify-between items-center border-b-2 border-black-2 dark:border-blue-500 p-2"
         >
           <div
-            @click="() => $router.push(`/projects/${project.id}`)"
+            @click="
+              () => {
+                if (appStore.isPm()) $router.push(`/projects/${project.id}`)
+              }
+            "
             class="text-xl font-extrabold text-nowrap text-ellipsis overflow-hidden hover:underline hover:opacity-80 cursor-pointer"
           >
             {{ project.title }}
@@ -44,8 +48,25 @@
         </div>
         <div class="row-span-1 col-span-1 mt-5 max-h-60 flex justify-between">
           <div class="overflow-hidden text-nowrap text-ellipsis max-w-40">
-            <span v-for="(member, index) in project.users" :key="member.id">
-              {{ member.name }}<span v-if="index < project.users.length - 1">, </span>
+            <span
+              :style="{ 'margin-left': index ? '-20px' : '' }"
+              v-for="(member, index) in project.users"
+              :key="member.id"
+            >
+              <el-avatar
+                class="cursor-pointer hover:scale-105"
+                @click="
+                  $router.push({
+                    name: 'userDetail',
+                    params: {
+                      id: member.id
+                    }
+                  })
+                "
+                fit="cover"
+                :src="member.image"
+              >
+              </el-avatar>
             </span>
           </div>
           <div
@@ -91,6 +112,7 @@
           </div>
         </div>
       </div>
+      <div class="text-white" v-if="!listProject.length">No data</div>
     </div>
   </DefaultLayout>
 </template>
@@ -102,8 +124,10 @@ import { projectRequest, projectStatusRequest } from '@/request'
 import { onMounted, ref } from 'vue'
 import { useWaitAppBooted } from '@/composable/useBooted'
 import router from '@/router'
+import { useAppStore } from '@/stores/app'
 const listProject = ref([])
 const projectStatusData = ref([])
+const appStore = useAppStore()
 const showDetail = ref(true)
 const getListProject = async () => {
   console.log('222')

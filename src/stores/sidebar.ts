@@ -11,5 +11,11 @@ export const useSidebarStore = defineStore('sidebar', () => {
     isSidebarOpen.value = !isSidebarOpen.value
   }
 
-  return { isSidebarOpen, toggleSidebar, selected, page }
+  function reset() {
+    isSidebarOpen.value = false
+    page.value = useStorage('page', ref('Dashboard'))
+    selected.value = useStorage('selected', ref('eCommerce'))
+  }
+
+  return { isSidebarOpen, toggleSidebar, selected, reset }
 })

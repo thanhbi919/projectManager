@@ -7,7 +7,7 @@
         :model="formData"
         label-width="120px"
         ref="formRef"
-        :rules="formRules"
+        :rules="rules"
         class="p-6.5"
       >
         <!--          Project-->
@@ -23,7 +23,7 @@
               v-for="project in listProject"
               :key="project.id"
               :value="project.id"
-              :label="project.name"
+              :label="project.title"
             ></el-option>
           </el-select>
         </el-form-item>
@@ -89,7 +89,7 @@
 
         <el-row :gutter="20">
           <el-col :span="8">
-            <el-form-item label="Assign To">
+            <el-form-item label="Assign To" prop="assign_to">
               <el-select
                 filterable
                 :disabled="!formData.project_id"
@@ -107,8 +107,15 @@
             </el-form-item>
           </el-col>
 
+          <!-- Estimate Time -->
+          <el-col :span="5">
+            <el-form-item :error="errorMessage" label="Estimate Time" prop="estimated_time">
+              <el-input @change="handleChange" v-model="loggedTime"></el-input>
+            </el-form-item>
+          </el-col>
+
           <!-- Start Date -->
-          <el-col :span="4">
+          <el-col :span="5">
             <el-form-item label="Start Date" prop="start_date">
               <el-date-picker
                 type="date"
@@ -122,8 +129,8 @@
           </el-col>
 
           <!-- Due Date -->
-          <el-col :span="4">
-            <el-form-item label="End Date" prop="end_date">
+          <el-col :span="5">
+            <el-form-item label="Due Date" prop="due_date">
               <el-date-picker
                 type="date"
                 placeholder="Pick a date"
@@ -138,6 +145,9 @@
 
         <!-- Buttons -->
         <div class="flex justify-end gap-4">
+          <el-button v-if="route.params.id" plain type="danger" @click="deleteTask">
+            Delete
+          </el-button>
           <el-button plain type="success" @click="submitForm(formRef)">
             {{ route.params.id ? 'Update' : 'Create' }}
           </el-button>
@@ -148,7 +158,7 @@
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 :deep(.el-input.el-date-editor) {
   width: 100%;
 }
@@ -171,10 +181,13 @@ import {
   typeRequest,
   userRequest
 } from '@/request'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, type FormInstance, vLoading } from 'element-plus'
+import { calculateMinutes } from '@/utils/time'
+const errorMessage = ref()
 
 const route = useRoute()
+const router = useRouter()
 const cardTitle = ref()
 
 const formRef = ref<FormInstance>()
@@ -191,6 +204,7 @@ const typeData = ref([])
 const taskStatusData = ref([])
 const listTaskPriorityData = ref([])
 const listProjectMember = ref([])
+const loggedTime = ref()
 
 const formData = ref<{
   title: string
@@ -202,9 +216,51 @@ const formData = ref<{
   type_id: number
   start_date: string
   due_date: string
+  estimated_time: number
 }>({})
 
-const formRules = reactive({})
+const rules = {
+  title: [
+    { required: true, message: 'Title is required', trigger: 'blur' },
+    { max: 100, message: 'Title cannot exceed 100 characters', trigger: 'blur' }
+  ],
+  description: [{ max: 255, message: 'Description cannot exceed 255 characters', trigger: 'blur' }],
+  start_date: [{ type: 'date', message: 'Start date must be a valid date', trigger: 'blur' }],
+  due_date: [{ type: 'date', message: 'Due date must be a valid date', trigger: 'blur' }],
+  project_id: [
+    { required: true, message: 'Project is required', trigger: 'change' },
+    { type: 'number', message: 'Project must be a valid ID', trigger: 'change' }
+  ],
+  assign_to: [
+    { required: true, message: 'Assigned user is required', trigger: 'blur' },
+    { type: 'number', message: 'Assigned user must be a valid ID', trigger: 'change' }
+  ],
+  priority_id: [
+    { required: true, message: 'Priority is required', trigger: 'change' },
+    { type: 'number', message: 'Priority must be a valid ID', trigger: 'change' }
+  ],
+  type_id: [
+    { required: true, message: 'Type is required', trigger: 'change' },
+    { type: 'number', message: 'Type must be a valid ID', trigger: 'change' }
+  ],
+  status_id: [
+    { required: true, message: 'Status is required', trigger: 'change' },
+    { type: 'number', message: 'Status must be a valid ID', trigger: 'change' }
+  ]
+}
+const handleChange = (e) => {
+  if (!e) {
+    errorMessage.value = 'Estimate is required'
+    return
+  }
+
+  try {
+    formData.value.estimated_time = calculateMinutes(e)
+    errorMessage.value = ''
+  } catch (e) {
+    errorMessage.value = e
+  }
+}
 
 const getListProjectMember = async (project_id: number) => {
   listProjectMember.value = (await projectRequest.getListProjectMembers(project_id)).data
@@ -212,6 +268,7 @@ const getListProjectMember = async (project_id: number) => {
 
 const handleChangeProject = async (project_id) => {
   //TODO get list member of project by id
+  formData.value.assign_to = undefined
 
   await getListProjectMember(project_id)
 }
@@ -243,11 +300,32 @@ const getListProject = async () => {
 }
 
 const getDetailTask = async () => {
-  formData.value = (await taskRequest.show(route.params.id)).data
+  try {
+    const task = (await taskRequest.show(route.params.id)).data
+    formData.value.project_id = task.project_id
+    formData.value.assign_to = task.assign_to.id
+    formData.value.title = task.title
+    formData.value.type_id = task.type_id
+    formData.value.due_date = task.due_date
+    formData.value.start_date = task.start_date
+    formData.value.description = task.description
+    formData.value.status_id = task.status_id
+    formData.value.priority_id = task.priority_id
+    loggedTime.value = task.estimated_time
+  } catch (e) {
+    ElMessage({
+      type: 'error',
+      message: e
+    })
+    router.push({
+      name: 'taskList'
+    })
+  }
 }
 
 const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
+  handleChange(loggedTime.value)
 
   await formEl.validate(async (isValid, invalidFields) => {
     if (isValid) {
@@ -255,31 +333,50 @@ const submitForm = async (formEl: FormInstance | undefined) => {
       try {
         if (route.params.id) {
           formData.value.name = '123'
-          await projectRequest.update(formData.value, route.params.id)
+
+          await taskRequest.update(formData.value, route.params.id)
           ElMessage({
             type: 'success',
             message: `Update project ${route.params.id} success`
           })
         } else {
-          await projectRequest.create(formData.value)
+          const appStore = useAppStore()
+          await taskRequest.create({ ...formData.value, created_by: appStore.userData.id })
           ElMessage({
             type: 'success',
             message: 'Create project success'
           })
+          formEl.resetFields()
+          router.push({ name: 'taskList' })
         }
-
-        formEl.resetFields()
       } catch (e) {
-        console.error(error)
         ElMessage({
-          type: 'success',
-          message: error
+          type: 'error',
+          message: e
         })
       }
     } else {
       console.error(invalidFields)
     }
   })
+}
+
+const deleteTask = async () => {
+  try {
+    await taskRequest.delete(route.params.id)
+    ElMessage({
+      type: 'success',
+      message: 'Delete task success'
+    })
+    router.push({
+      name: 'taskList'
+    })
+  } catch (e) {
+    ElMessage({
+      type: 'error',
+      message: e
+    })
+  }
 }
 
 onBeforeMount(async () => {
@@ -298,6 +395,7 @@ onBeforeMount(async () => {
       //
       await getDetailTask()
       cardTitle.value = formData.value.title
+      await getListProjectMember(formData.value.project_id)
     } else {
       cardTitle.value = 'Task'
     }

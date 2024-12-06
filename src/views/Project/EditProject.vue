@@ -1,7 +1,7 @@
 <template>
   <DefaultLayout>
     <!-- Breadcrumb Start -->
-    <BreadcrumbDefault :pageTitle="'Edit Project'" />
+    <BreadcrumbDefault :pageTitle="'Project Detail'" />
     <!-- Breadcrumb End -->
 
     <Project></Project>

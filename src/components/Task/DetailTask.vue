@@ -1,5 +1,5 @@
 <template>
-  <div v-loading="loading" class="w-full h-full px-5">
+  <div v-loading="loading" class="w-full h-full px-5 overflow-auto max-h-125">
     <div class="flex mb-10 justify-between items-center">
       <span class="font-semibold text-title-xl">{{ taskDetail?.title }}</span>
       <div>
@@ -159,7 +159,7 @@
   </el-dialog>
 </template>
 <script setup lang="ts">
-import { onBeforeMount, reactive, ref } from 'vue'
+import { onBeforeMount, reactive, ref, watch } from 'vue'
 import { taskRequest } from '@/request'
 import { calculateMinutes, formatMinutesToTime } from '@/utils/time'
 import {
@@ -193,6 +193,7 @@ const formLogwork = reactive<{
 const appStore = useAppStore()
 const loggedTime = ref()
 const errorMessage = ref()
+const emits = defineEmits(['taskUpdated'])
 const handleChange = (e) => {
   if (!e) {
     errorMessage.value = 'Time spent is required'
@@ -207,6 +208,19 @@ const handleChange = (e) => {
   }
 }
 
+watch(
+  () => showLogTime.value,
+  (ok) => {
+    if (!ok) {
+      formLogwork.logged_time = undefined
+      formLogwork.log_date = undefined
+      formLogwork.user_id = undefined
+      formLogwork.task_id = undefined
+      loggedTime.value = undefined
+    }
+  }
+)
+
 const logWork = async () => {
   handleChange(loggedTime.value)
 
@@ -214,13 +228,14 @@ const logWork = async () => {
     console.log(valid)
     if (valid) {
       formLogwork.task_id = +props.taskDetail.id
-      formLogwork.user_id = appStore.userData.id
+      formLogwork.user_id = appStore.userData?.id
       try {
         await taskRequest.logWork(formLogwork)
         ElMessage({
           type: 'success',
           message: 'Logwork success'
         })
+        emits('taskUpdated')
         showLogTime.value = false
       } catch (e) {
         ElMessage({
@@ -245,11 +260,8 @@ onBeforeMount(async () => {
 const styleStatus = {
   open: { class: 'bg-gray-500', icon: Refresh }, // Open: Gray background with a refresh icon
   inprogress: { class: 'bg-blue-500', icon: ChatLineRound }, // In Progress: Blue background with a chat icon
-  resolve: { class: 'bg-green-500', icon: Check }, // Resolved: Green background with a check icon
-  deploy: { class: 'bg-purple-500', icon: Upload }, // Deployed: Purple background with an upload icon
-  feedback: { class: 'bg-yellow-500', icon: Warning }, // Feedback: Yellow background with a warning icon
-  reopen: { class: 'bg-red-500', icon: Close }, // Reopened: Red background with a close icon
-  done: { class: 'bg-green-500', icon: CircleCheck } // Done: Teal background with a circle check icon
+  done: { class: 'bg-green-500', icon: Upload }, // Deployed: Purple background with an upload icon
+  pending: { class: 'bg-yellow-500', icon: Warning } // Feedback: Yellow background with a warning icon
 }
 
 const stylePriority = {
@@ -264,9 +276,7 @@ const stylePriority = {
   width: 250px;
 }
 
-:deep(.input-spent) {
-  .el-input-number {
-    width: 50px;
-  }
+:deep(.input-spent.el-input-number) {
+  width: 50px;
 }
 </style>

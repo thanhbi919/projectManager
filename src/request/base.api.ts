@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { useRouter } from 'vue-router'
 
 export class BaseApi {
   constructor(subUrl) {
@@ -19,14 +20,6 @@ export class BaseApi {
     // Interceptors nếu cần
     this.client.interceptors.request.use(
       (config) => {
-        const isLoggedIn = localStorage.getItem('isLoggedIn') // Hoặc sessionStorage
-
-        if (isLoggedIn === 'true') {
-          // config.headers['Authorization'] = `Bearer ${token}`
-        } else {
-          console.log('User is not authenticated')
-        }
-
         return config
       },
       (error) => {
@@ -39,7 +32,7 @@ export class BaseApi {
 
     this.client.interceptors.response.use(
       (response) => response,
-      (error) => {
+      async (error) => {
         if (error.status === 401) {
           localStorage.setItem('isLoggedIn', false)
         }
@@ -73,8 +66,8 @@ export class BaseApi {
     } else return this.client.put(`/${id}`, data, { headers })
   }
 
-  delete() {
-    return this.client.delete('')
+  delete(id: number) {
+    return this.client.delete(`/${id}`)
   }
 }
 
