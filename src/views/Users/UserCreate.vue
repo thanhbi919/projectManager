@@ -102,7 +102,7 @@ useWaitAppBooted(() => {})
   <DefaultLayout>
     <div class="mx-auto max-w-242.5">
       <!-- Breadcrumb Start -->
-      <BreadcrumbDefault :pageTitle="pageTitle" />
+      <BreadcrumbDefault :pageTitle="'Create User'" />
       <!-- Breadcrumb End -->
       <div
         class="overflow-hidden rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark px-4 py-12"
