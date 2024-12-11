@@ -7,7 +7,7 @@ import DefaultLayout from '@/layouts/DefaultLayout.vue'
 <template>
   <DefaultLayout>
     <!-- Breadcrumb Start -->
-    <BreadcrumbDefault :pageTitle="'Create Task'" />
+    <BreadcrumbDefault :pageTitle="'Create Project'" />
     <!-- Breadcrumb End -->
     <Project></Project>
   </DefaultLayout>

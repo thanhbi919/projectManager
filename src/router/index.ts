@@ -77,7 +77,7 @@ const routes = [
     meta: {
       title: 'Create Project',
       auth: true,
-      permissions: ['admin']
+      permissions: ['admin', 'pm']
     }
   },
   {

@@ -13,6 +13,8 @@ import Sortable from 'sortablejs'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 
+// Register the modules
+
 import App from './App.vue'
 import router from './router'
 
@@ -22,6 +24,7 @@ app.use(createPinia())
 app.use(router)
 app.use(VueApexCharts)
 app.use(ElementPlus)
+
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
 }

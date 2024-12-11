@@ -4,7 +4,7 @@
     <BreadcrumbDefault :pageTitle="'Projects'" />
     <!-- Breadcrumb End -->
 
-    <div v-if="appStore.isAdmin()">
+    <div v-if="appStore.isPm()">
       <el-button @click="router.push('projects/create')" class="mb-5" type="primary"
         >Create Project</el-button
       >

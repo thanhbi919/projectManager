@@ -182,7 +182,7 @@ import {
   userRequest
 } from '@/request'
 import { useRoute, useRouter } from 'vue-router'
-import { ElMessage, type FormInstance, vLoading } from 'element-plus'
+import { ElMessage, ElMessageBox, type FormInstance, vLoading } from 'element-plus'
 import { calculateMinutes } from '@/utils/time'
 const errorMessage = ref()
 
@@ -363,14 +363,29 @@ const submitForm = async (formEl: FormInstance | undefined) => {
 
 const deleteTask = async () => {
   try {
-    await taskRequest.delete(route.params.id)
-    ElMessage({
-      type: 'success',
-      message: 'Delete task success'
+    ElMessageBox.confirm('Are you sure?', '', {
+      confirmButtonText: 'OK',
+      cancelButtonText: 'Cancel',
+      type: 'warning'
     })
-    router.push({
-      name: 'taskList'
-    })
+      .then(async () => {
+        try {
+          await taskRequest.delete(route.params.id)
+          router.push({
+            name: 'taskList'
+          })
+          ElMessage({
+            type: 'success',
+            message: 'Delete task success'
+          })
+        } catch (e) {
+          ElMessage({
+            type: 'error',
+            message: e
+          })
+        }
+      })
+      .catch(() => {})
   } catch (e) {
     ElMessage({
       type: 'error',
