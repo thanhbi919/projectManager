@@ -14,6 +14,25 @@ class DashboardRequest extends BaseApi {
   async taskDistribution() {
     return await this.client.get('/admin/task-distribution')
   }
+
+  async overviewPm(){
+    return await this.client.get('/pm/overview')
+  }
+
+  async taskProgress(){
+    return await this.client.get('/pm/task-progress')
+  }
+
+  async taskByMember(projectId){
+    const a = await this.client.get(`/pm/task-by-member?project_id=${projectId}`)
+    console.log(a)
+    return a.data
+  }
+  async myTask(projectId){
+    const a = await this.client.get(`/pm/my-task?project_id=${projectId}`)
+    console.log(a)
+    return a.data
+  }
 }
 
 const request = new DashboardRequest()
