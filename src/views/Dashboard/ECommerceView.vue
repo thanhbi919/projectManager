@@ -84,7 +84,7 @@
         <el-table border head lazy :data="dataTable" stripe style="max-height: 400px">
           <el-table-column v-if="appStore.userData.department!=='pm'" align="center" label="Member Name">
             <template #default="scope">{{
-              scope.row.project[scope.$index].project.title}}</template>
+              scope.row.project?.[scope.$index].project.title}}</template>
           </el-table-column>
           <el-table-column align="center" prop="member_name" label="Member Name"/>
 
